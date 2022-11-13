@@ -50,8 +50,14 @@ const run = async () => {
     });
 
     app.get("/services", async (req, res) => {
-      const query = {};
-      const cursor = userCollection.find(query);
+      // const query = { price: { $lt: 100 } };
+      const search = req.query.search;
+      const order = req.query.order === "asc" ? 1 : -1;
+      let query = {};
+      if (search.length >= 1) {
+        query = { $text: { $search: search } };
+      }
+      const cursor = userCollection.find(query).sort({ price: order });
       const services = await cursor.toArray();
       res.send(services);
     });
